@@ -1,0 +1,46 @@
+services:
+  proxy:
+    depends_on:
+      anubis:
+        condition: service_healthy
+    container_name: proxy
+    image: nginx:1.29-alpine
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./config/proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/proxy/anubis.conf:/etc/nginx/conf.d/default.conf:ro
+
+  anubis:
+    depends_on:
+      - mysite
+    container_name: anubis
+    image: ghcr.io/techarohq/anubis:v1.23.1
+    restart: always
+    environment:
+      BIND: ":8923"
+      DIFFICULTY: "5"
+      SLOG_LEVEL: "WARN"
+      METRICS_BIND: ":9090"
+      COOKIE_SECURE: false # set to true if using HTTPS
+      TARGET: "http://mysite:80"
+      POLICY_FNAME: "/data/policies.yaml"
+      OG_PASSTHROUGH: true
+      OG_EXPIRY_TIME: "1h"
+    healthcheck:
+      test: ["CMD", "anubis", "--healthcheck"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 500ms
+    volumes:
+      - "./config/anubis/policies.yaml:/data/policies.yaml:ro"
+
+  mysite:
+    container_name: mysite
+    image: nginx:1.29-alpine
+    restart: always
+    volumes:
+      - ./config/mysite/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./src:/usr/share/nginx/html:ro
