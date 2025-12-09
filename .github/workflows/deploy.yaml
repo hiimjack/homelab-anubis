@@ -1,10 +1,8 @@
 name: Update copyright year(s) in license file
 
-# on:
-#   schedule:
-#     - cron: '0 3 1 1 *' # 03:00 AM on January 1
-
-on: [workflow_dispatch]
+on:
+  schedule:
+    - cron: "0 3 1 1 *"
 
 permissions:
   contents: read
