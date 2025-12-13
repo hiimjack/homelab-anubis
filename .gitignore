@@ -51,5 +51,5 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos
 
-
-data/
+/data/grafana/data/
+/data/prometheus/
